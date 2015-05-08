@@ -15,6 +15,7 @@
 
 'use strict';
 
+var cfenv = require("cfenv")
 var createClient = require('pa11y-webservice-client-node');
 var EventEmitter = require('events').EventEmitter;
 var express = require('express');
@@ -24,12 +25,9 @@ var pkg = require('./package.json');
 
 module.exports = initApp;
 
-console.log("PATH:" + process.env.PATH)
-
 // Initialise the application
 function initApp (config, callback) {
 	config = defaultConfig(config);
-
 
 	var webserviceUrl = config.webservice;
 	if (typeof webserviceUrl == 'object') {
@@ -38,12 +36,6 @@ function initApp (config, callback) {
 
 	var app = new EventEmitter();
 
-    config.port = process.env.VCAP_APP_PORT
-
-    var cfenv = require("cfenv")
-	var appEnv = cfenv.getAppEnv()
-
-    config.webservice.database = appEnv.getServiceURL("mdb")
 	app.address = null;
 	app.express = express();
 	app.server = http.createServer(app.express);
@@ -135,6 +127,7 @@ function initApp (config, callback) {
 
 }
 
+
 // Get default configurations
 function defaultConfig (config) {
 	if (typeof config.noindex !== 'boolean') {
@@ -143,5 +136,13 @@ function defaultConfig (config) {
 	if (typeof config.readonly !== 'boolean') {
 		config.readonly = false;
 	}
-	return config;
+
+	// Grab the CF DEA assigned port.
+    config.port = process.env.VCAP_APP_PORT
+
+    // Grab the bound service URI from VCAP_SERVICES as specified in env.
+    var appEnv = cfenv.getAppEnv()
+    config.webservice.database = appEnv.getServiceURL(process.env.MONGODB_NAME)
+    
+    return config;
 }

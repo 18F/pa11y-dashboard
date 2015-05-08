@@ -1,8 +1,9 @@
 ---
 applications:
 - name: pa11y
-  memory: 1024M
+  memory: 256M
   services:
-    - mdb
+    - pa11y-mongo
   env:
     NODE_ENV: production
+    MONGODB_NAME: pa11y-mongo
