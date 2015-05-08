@@ -24,9 +24,12 @@ var pkg = require('./package.json');
 
 module.exports = initApp;
 
+console.log("PATH:" + process.env.PATH)
+
 // Initialise the application
 function initApp (config, callback) {
 	config = defaultConfig(config);
+
 
 	var webserviceUrl = config.webservice;
 	if (typeof webserviceUrl == 'object') {
@@ -34,6 +37,13 @@ function initApp (config, callback) {
 	}
 
 	var app = new EventEmitter();
+
+    config.port = process.env.VCAP_APP_PORT
+
+    var cfenv = require("cfenv")
+	var appEnv = cfenv.getAppEnv()
+
+    config.webservice.database = appEnv.getServiceURL("mdb")
 	app.address = null;
 	app.express = express();
 	app.server = http.createServer(app.express);

@@ -1,0 +1,8 @@
+---
+applications:
+- name: pa11y
+  memory: 1024M
+  services:
+    - mdb
+  env:
+    NODE_ENV: production
